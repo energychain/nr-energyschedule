@@ -1,0 +1,121 @@
+[
+    {
+        "id": "ev-charging-example",
+        "type": "tab",
+        "label": "EV Smart Charging Example",
+        "disabled": false,
+        "info": "Smart EV charging flow that optimizes for CO2 emissions. Schedules 6 non-consecutive hours within a 12-hour window."
+    },
+    {
+        "id": "inject2",
+        "type": "inject",
+        "z": "ev-charging-example",
+        "name": "Car Connected",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0,
+        "topic": "",
+        "payload": "{\"requirements\":{\"energyDemand\":40,\"maxLoad\":11000,\"avgLoad\":7200}}",
+        "payloadType": "json",
+        "x": 150,
+        "y": 100,
+        "wires": [["schedule2"]]
+    },
+    {
+        "id": "schedule2",
+        "type": "energy-schedule",
+        "z": "ev-charging-example",
+        "name": "EV Charging",
+        "zip": "69168",
+        "law": "co2",
+        "activeHours": "6",
+        "coverageHours": "12",
+        "consecutiveHours": false,
+        "x": 400,
+        "y": 100,
+        "wires": [["switch1"],["debug5"]]
+    },
+    {
+        "id": "switch1",
+        "type": "switch",
+        "z": "ev-charging-example",
+        "name": "Check Status",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 650,
+        "y": 100,
+        "wires": [["debug3"],["debug4"]]
+    },
+    {
+        "id": "debug3",
+        "type": "debug",
+        "z": "ev-charging-example",
+        "name": "Charging Active",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "debug4",
+        "type": "debug",
+        "z": "ev-charging-example",
+        "name": "Charging Paused",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "debug5",
+        "type": "debug",
+        "z": "ev-charging-example",
+        "name": "Schedule Details",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": true,
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 180,
+        "wires": []
+    }
+]

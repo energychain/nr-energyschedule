@@ -1,0 +1,150 @@
+<!-- energy-schedule.html -->
+<script type="text/html" data-template-name="energy-schedule">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-zip"><i class="fa fa-map-marker"></i> ZIP</label>
+        <input type="text" id="node-input-zip" placeholder="Postleitzahl">
+    </div>
+    <div class="form-row">
+        <label for="node-input-personaltoken"><i class="fa fa-key"></i> Personal Token</label>
+        <input type="password" id="node-input-personaltoken" placeholder="Leave empty for default">
+    </div>
+    <div class="form-row">
+        <label for="node-input-law"><i class="fa fa-balance-scale"></i> Law</label>
+        <select id="node-input-law">
+            <option value="comfort" selected>Comfort</option>
+            <option value="price">Price</option>
+            <option value="co2">CO2</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-coverageHours"><i class="fa fa-clock-o"></i> Coverage Hours</label>
+        <input type="number" id="node-input-coverageHours" placeholder="24">
+    </div>
+    <div class="form-row">
+        <label for="node-input-activeHours"><i class="fa fa-hourglass-half"></i> Active Hours</label>
+        <input type="number" id="node-input-activeHours" placeholder="1">
+    </div>
+    <div class="form-row">
+        <label for="node-input-consecutiveHours"><i class="fa fa-link"></i> Consecutive Hours</label>
+        <input type="checkbox" id="node-input-consecutiveHours" style="width: auto;" checked>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('energy-schedule', {
+        category: 'energy',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            zip: { value: "", required: true },
+            personaltoken: { value: "" },
+            law: { value: "comfort", required: true },
+            coverageHours: { value: 24, required: true, validate: RED.validators.number() },
+            activeHours: { value: 1, required: true, validate: RED.validators.number() },
+            consecutiveHours: { value: true }
+        },
+        inputs: 1,
+        outputs: 2,
+        icon: "font-awesome/fa-calendar",
+        label: function() {
+            return this.name || "Energy Schedule";
+        },
+        paletteLabel: "Energy Schedule"
+    });
+</script>
+
+<script type="text/html" data-help-name="energy-schedule">
+    <p>A node for managing energy schedules using the Corrently API.</p>
+
+    <h3>Properties</h3>
+    <dl class="message-properties">
+        <dt>ZIP <span class="property-type">string</span></dt>
+        <dd>Postleitzahl (German postal code) for the location where the schedule will be applied.</dd>
+        
+        <dt>Personal Token <span class="property-type">string</span></dt>
+        <dd>Your personal Corrently API token. You can obtain one from <a href="https://console.corrently.io/" target="_blank">https://console.corrently.io/</a>. If left empty, a default token will be used from the global context if available.</dd>
+        
+        <dt>Law <span class="property-type">string</span></dt>
+        <dd>Default optimization strategy:
+            <ul>
+                <li><code>comfort</code> - Optimize for user comfort (default)</li>
+                <li><code>price</code> - Optimize for lowest price</li>
+                <li><code>co2</code> - Optimize for lowest CO2 emissions</li>
+            </ul>
+        </dd>
+
+        <dt>Coverage Hours <span class="property-type">number</span></dt>
+        <dd>Number of hours to schedule ahead (default: 24)</dd>
+
+        <dt>Active Hours <span class="property-type">number</span></dt>
+        <dd>Number of hours the schedule should be active (default: 1)</dd>
+
+        <dt>Consecutive Hours <span class="property-type">boolean</span></dt>
+        <dd>Whether the active hours must be consecutive (default: true)</dd>
+    </dl>
+
+    <h3>Authentication</h3>
+    <p>The node can use either:</p>
+    <ul>
+        <li>A personal token configured in the node (recommended)</li>
+        <li>A token stored in the global context (from previous usage)</li>
+        <li>A default token if neither of the above is available</li>
+    </ul>
+    <p>To get your personal token, visit <a href="https://console.corrently.io/" target="_blank">https://console.corrently.io/</a> and create an account.</p>
+
+    <h3>Persistence</h3>
+    <p>The node stores the current schedule ID in the Node-RED context store. This allows it to resume monitoring the same schedule after a Node-RED restart, as long as the schedule hasn't expired.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt>payload
+            <span class="property-type">object</span>
+        </dt>
+        <dd>Schedule requirements object containing:
+            <ul>
+                <li><code>zip</code> - ZIP code for location (overrides node configuration)</li>
+                <li><code>coverageHours</code> - Hours to schedule ahead (overrides node configuration)</li>
+                <li><code>requirements</code> - Scheduling requirements including:
+                    <ul>
+                        <li><code>law</code> - Optimization law (overrides node configuration)</li>
+                        <li><code>activeHours</code> - Number of active hours (overrides node configuration)</li>
+                        <li><code>consecutiveHours</code> - Whether hours must be consecutive (overrides node configuration)</li>
+                        <li><code>energyDemand</code> - Required energy in kWh</li>
+                        <li><code>maxLoad</code> - Maximum load in watts</li>
+                        <li><code>avgLoad</code> - Average load in watts</li>
+                    </ul>
+                </li>
+            </ul>
+        </dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Boolean status output
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">boolean</span></dt>
+                <dd>true if schedule is currently active, false otherwise</dd>
+            </dl>
+        </li>
+        <li>Schedule details output
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">object</span></dt>
+                <dd>Complete schedule information from the Corrently API</dd>
+            </dl>
+        </li>
+    </ol>
+
+    <h3>Details</h3>
+    <p>This node manages energy schedules using the Corrently API. It creates new schedules when needed and monitors their status. The node status indicator shows:
+        <ul>
+            <li>Green dot: Schedule is currently active ("ON")</li>
+            <li>Red ring: Schedule is currently inactive ("OFF")</li>
+            <li>Gray ring: No schedule exists</li>
+        </ul>
+        The status text shows the time of the next state change.
+    </p>
+</script>

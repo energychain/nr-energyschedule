@@ -1,0 +1,97 @@
+[
+    {
+        "id": "dynamic-requirements-example",
+        "type": "tab",
+        "label": "Dynamic Requirements Example",
+        "disabled": false,
+        "info": "Flow that dynamically adjusts energy requirements based on time of day. Uses a function node to calculate needed energy and active hours."
+    },
+    {
+        "id": "inject3",
+        "type": "inject",
+        "z": "dynamic-requirements-example",
+        "name": "Update Energy Need",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "1800",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 100,
+        "wires": [["function1"]]
+    },
+    {
+        "id": "function1",
+        "type": "function",
+        "z": "dynamic-requirements-example",
+        "name": "Calculate Requirements",
+        "func": "const currentHour = new Date().getHours();\n\n// More energy needed during peak hours\nconst energyDemand = (currentHour >= 17 && currentHour <= 21) ? 15 : 8;\n\nreturn {\n    payload: {\n        requirements: {\n            energyDemand: energyDemand,\n            maxLoad: 3000,\n            avgLoad: 2200,\n            activeHours: Math.ceil(energyDemand/2)\n        }\n    }\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 100,
+        "wires": [["schedule3"]]
+    },
+    {
+        "id": "schedule3",
+        "type": "energy-schedule",
+        "z": "dynamic-requirements-example",
+        "name": "Dynamic Schedule",
+        "zip": "69168",
+        "law": "comfort",
+        "activeHours": "1",
+        "coverageHours": "8",
+        "consecutiveHours": true,
+        "x": 650,
+        "y": 100,
+        "wires": [["debug6"],["debug7"]]
+    },
+    {
+        "id": "debug6",
+        "type": "debug",
+        "z": "dynamic-requirements-example",
+        "name": "Schedule Status",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "debug7",
+        "type": "debug",
+        "z": "dynamic-requirements-example",
+        "name": "Schedule Details",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": true,
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 140,
+        "wires": []
+    }
+]

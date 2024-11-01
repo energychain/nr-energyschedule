@@ -1,0 +1,37 @@
+{
+  "name": "nr-energyschedule",
+  "version": "1.0.0",
+  "description": "Node-RED Implementation of the Energy Schedule API",
+  "main": "energy-schedule.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/energychain/nr-energyschedule.git"
+  },
+  "keywords": [
+    "energyschedule",
+    "node-red",
+    "electricity",
+    "fahrplanmanagement",
+    "corrently"
+  ],
+  "author": "STROMDAO GmbH <dev@stromdao.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/energychain/nr-energyschedule/issues"
+  },
+  "homepage": "https://github.com/energychain/nr-energyschedule#readme",
+  "node-red": {
+    "nodes": {
+        "energy-schedule": "energy-schedule.js"
+      }
+  },
+  "dependencies": {
+      "corrently-api": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+ }
+}
